@@ -141,44 +141,27 @@ body {
   cursor: pointer;
 }
 
-.dropdown-content {
+.dropdown-menu {
   display: none;
   position: absolute;
   background-color: var(--nav-panel-color);
   min-width: var(--dropdown-min-width);
-  z-index: 1;
+  z-index: 1; /* ensures dropdown menu is above arena */
 }
 
-.dropdown-content .optgroup {
-  padding: 12px;
+.dropdown-menu .dropdown-item {
+  padding: var(--dropdown-padding);
   cursor: pointer;
 }
 
-.dropdown-content .optgroup:hover {
+.dropdown-menu .dropdown-item:hover {
   background-color: var(--nav-panel-hover-color);
 }
 
-.optgroup-heading {
+.dropdown-heading {
   padding: var(--dropdown-padding);
-  /* cursor: pointer; */
   font-weight: bold;
 }
-
-/* #nav-selector {
-  display: none;
-  margin: 0;
-  margin: var(--padding-horizontal);
-  text-align: center;
-  font-family: var(--nav-panel-body-font);
-  font-size: 1em;
-  
-}
-
-@media screen and (max-width: 768px) {
-  #nav-selector {
-    display: inline;
-  }
-} */
 
 #arena-container {
   margin: 0 auto;

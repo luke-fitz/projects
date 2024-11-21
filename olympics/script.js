@@ -1,17 +1,4 @@
-// Fetch the event data
-fetch('./data/events.json')
-  .then(response => response.json())
-  .then(data => {
-    const events = data.events;
-    populateNavbar(events);
-    clickFirstEvent();
-  })
-  .catch(error => {
-    console.error('Error fetching data:', error);
-    document.getElementById('arena').textContent = 'Failed to load event data. Please try again later.';
- });
-
-// Precomputed styles
+/// Precomputed styles
 const mediaQuery = window.matchMedia("screen and (max-width: 768px)");
 const isMobile = mediaQuery.matches;
 const style = getComputedStyle(document.documentElement);
@@ -24,17 +11,34 @@ const minLaneHeight = parseInt(
   : style.getPropertyValue('--lane-min-height-desktop')
 );
 
+// Listener for dropdown button clicks
 document.querySelector('.dropdown-btn').addEventListener('click', function () {
-  const dropdownContent = document.querySelector('.dropdown-content');
-  dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+  // Close the menu if it is open, and vice versa
+  const dropdownMenu = document.querySelector('.dropdown-menu');
+  dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
 });
 
-function handleOptionClick(event) {
-  // Do something with the selected option
-  // e.g., change the selected event or update the UI
-  document.querySelector('.dropdown-btn').textContent = event.event;  // Update the button text to the selected option
-  // Close the dropdown after selection
-  document.querySelector('.dropdown-content').style.display = 'none';
+// Fetch the event data
+fetch('./data/events.json')
+  .then(response => response.json())
+  .then(data => {
+    const events = data.events;
+    populateAllEventSelectors(events);
+    clickFirstEvent();
+  })
+  .catch(error => {
+    console.error('Error fetching data:', error);
+    document.getElementById('arena').textContent = 'Failed to load event data. Please try again later.';
+ });
+
+ function handleEventClick(event, updateDropdown) {
+  if (updateDropdown) {
+    // Update the button text to the selected option
+    document.querySelector('.dropdown-btn').textContent = event.event;
+    // Close the dropdown after selection
+    document.querySelector('.dropdown-menu').style.display = 'none';
+  }
+  // Simulate the event
   simulateEvent(event);
 }
 
@@ -42,11 +46,13 @@ function handleOptionClick(event) {
  * Populates the navigation menus with the event labels
  * @param {list} events - List of events in json format
  */
-function populateNavbar(events) {
-  const navPanel = document.getElementById('nav-panel');
-  // const navSelector = document.getElementById('nav-selector');
-  const navSelector = document.getElementById('dropdown-content'); //TODO: rename
-  let lastSport = ''; // initialize
+function populateEventSelector(events, eventSelectorId, eventHeadingClass, eventClass, updateDropdown) {
+
+  // Get the event selector element
+  const eventSelector = document.getElementById(eventSelectorId);
+
+  // Initialise last sport for the heading calculation
+  let lastSport = ''; 
 
   events.forEach(event => {
     // Get the event's sport
@@ -54,48 +60,39 @@ function populateNavbar(events) {
 
     // Add a sport subheading if it is different to the previous value
     if (eventSport != lastSport) {
-      // Navigation panel
-      const sportHeading = document.createElement('div');
-      sportHeading.className = 'nav-heading';
-      sportHeading.textContent = eventSport;
-      navPanel.appendChild(sportHeading);
-
-      // Navigation selector
-      const sportDropdownHeading = document.createElement('div');
-      sportDropdownHeading.className = 'optgroup-heading'
-      sportDropdownHeading.textContent = eventSport;
-      navSelector.appendChild(sportDropdownHeading);
+      const eventHeading = document.createElement('div');
+      eventHeading.className = eventHeadingClass;
+      eventHeading.textContent = eventSport;
+      eventSelector.appendChild(eventHeading);
 
       // Update the latest sport
       lastSport = eventSport;
     }
 
-    // Add the event button
-    // Navigation panel
-    const eventButton = document.createElement('div');
-    eventButton.textContent = event.event;
-    eventButton.className = 'nav-item';
-    eventButton.onclick = () => simulateEvent(event);
-    navPanel.appendChild(eventButton);
-
-    // Navigation selector
-    const selectOption = document.createElement('div');
-    selectOption.className = 'optgroup';
-    selectOption.value = event.event;
-    selectOption.textContent = event.event;
-    selectOption.onclick = () => handleOptionClick(event);
-    navSelector.append(selectOption);
-    
-
+    // Add event to the selector
+    const eventItem = document.createElement('div');
+    eventItem.className = eventClass;
+    eventItem.textContent = event.event;
+    eventItem.value = event.event;
+    eventItem.onclick = () => handleEventClick(event, updateDropdown);
+    eventSelector.appendChild(eventItem);
   });
+}
+
+function populateAllEventSelectors(events) {
+  // Desktop
+  populateEventSelector(events, 'nav-panel', 'nav-heading', 'nav-item', false);
+  // Mobile
+  populateEventSelector(events, 'dropdown-menu', 'dropdown-heading', 'dropdown-item', true);
 }
 
 /**
  * Loads the first event by clicking its label
  */
 function clickFirstEvent() {
-  const firstEventLabel = document.querySelector('.nav-item');
-  firstEventLabel.click()
+  const eventItemElement = isMobile ? '.dropdown-item' : '.nav-item';
+  const firstEventLabel = document.querySelector(eventItemElement);
+  firstEventLabel.click();
 }
 
 /**
@@ -120,7 +117,7 @@ function setArenaElement(event, arenaHeight) {
 function setLaneElement(result, laneHeightPercent) {
   const lane = document.createElement('div');
   lane.className = 'lane';
-  lane.id = `lane-${result.lane}`
+  lane.id = `lane-${result.lane}`;
   lane.style.height = laneHeightPercent + '%';
   return lane;
 }
@@ -147,7 +144,7 @@ function setDotElement(result) {
   const dot = document.createElement('div');
   dot.className = 'dot';
   dot.id = `dot-${result.lane}`;
-  return dot
+  return dot;
 }
 
 /**
@@ -160,7 +157,7 @@ function setTotalTimeLabelElement(result) {
   totalTimeLabel.className = 'total-time-label';
   totalTimeLabel.id = `total-time-label-${result.lane}`;
   totalTimeLabel.textContent = '';  // Initially blank
-  return totalTimeLabel
+  return totalTimeLabel;
 }
 
 /**
