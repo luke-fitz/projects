@@ -7,19 +7,22 @@
   <title>Sibling Olympics 2024</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="shortcut icon" href="#">
-  <div id="title-bar">
-    <h1>Sibling Olympics 2024</h1>
-  </div>
 </head>
 
 <body>
+  <div id="title-bar">
+    <h1>Sibling Olympics 2024</h1>
+  </div>
   <div id="nav-panel">
     <!-- Event labels will be populated here (desktop) -->
   </div>
   <div id="arena-container">
-    <select id="nav-selector">
-      <!-- Event labels will be populated here (mobile) -->
-    </select>
+    <div class="dropdown">
+      <button class="dropdown-btn">Select Event</button>
+      <div id="dropdown-content" class="dropdown-content">
+        <!-- Event labels will be populated here (mobile) -->
+      </div>
+    </div>
     <div id="event-title">
       <!-- Event title will be populated here -->
     </div>

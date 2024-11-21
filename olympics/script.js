@@ -24,13 +24,28 @@ const minLaneHeight = parseInt(
   : style.getPropertyValue('--lane-min-height-desktop')
 );
 
+document.querySelector('.dropdown-btn').addEventListener('click', function () {
+  const dropdownContent = document.querySelector('.dropdown-content');
+  dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+});
+
+function handleOptionClick(event) {
+  // Do something with the selected option
+  // e.g., change the selected event or update the UI
+  document.querySelector('.dropdown-btn').textContent = event.event;  // Update the button text to the selected option
+  // Close the dropdown after selection
+  document.querySelector('.dropdown-content').style.display = 'none';
+  simulateEvent(event);
+}
+
 /**
  * Populates the navigation menus with the event labels
  * @param {list} events - List of events in json format
  */
 function populateNavbar(events) {
   const navPanel = document.getElementById('nav-panel');
-  const navSelector = document.getElementById('nav-selector');
+  // const navSelector = document.getElementById('nav-selector');
+  const navSelector = document.getElementById('dropdown-content'); //TODO: rename
   let lastSport = ''; // initialize
 
   events.forEach(event => {
@@ -46,9 +61,10 @@ function populateNavbar(events) {
       navPanel.appendChild(sportHeading);
 
       // Navigation selector
-      const sportOptGroup = document.createElement('optgroup');
-      sportOptGroup.label = eventSport;
-      navSelector.appendChild(sportOptGroup);
+      const sportDropdownHeading = document.createElement('div');
+      sportDropdownHeading.className = 'optgroup-heading'
+      sportDropdownHeading.textContent = eventSport;
+      navSelector.appendChild(sportDropdownHeading);
 
       // Update the latest sport
       lastSport = eventSport;
@@ -63,11 +79,11 @@ function populateNavbar(events) {
     navPanel.appendChild(eventButton);
 
     // Navigation selector
-    const selectOption = document.createElement('option');
+    const selectOption = document.createElement('div');
+    selectOption.className = 'optgroup';
     selectOption.value = event.event;
     selectOption.textContent = event.event;
-    selectOption.className = 'select.item';
-    selectOption.onclick = () => simulateEvent(event);
+    selectOption.onclick = () => handleOptionClick(event);
     navSelector.append(selectOption);
     
 

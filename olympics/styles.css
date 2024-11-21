@@ -45,6 +45,8 @@
     --arena-width: 90vw;
     --body-margin-top: 40px;
     --dot-size: 16px;
+    --dropdown-min-width: 200px;
+    --dropdown-padding: 10px;
     --lane-label-margin-top: 5px;
     --lane-row-2-margin: 25px;
     --lane-min-height-mobile: 55px;
@@ -117,7 +119,52 @@ body {
   padding-top: 0; /* Remove top padding for the first heading */
 }
 
-#nav-selector {
+.dropdown {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .dropdown {
+    position: relative;
+    display: inline-block;
+    margin-bottom: var(--padding-horizontal);
+  }
+}
+
+.dropdown-btn {
+  background-color: var(--title-bar-color);
+  color: white;
+  padding: var(--dropdown-padding);
+  font-size: 1em;
+  font-family: var(--nav-panel-body-font);
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: var(--nav-panel-color);
+  min-width: var(--dropdown-min-width);
+  z-index: 1;
+}
+
+.dropdown-content .optgroup {
+  padding: 12px;
+  cursor: pointer;
+}
+
+.dropdown-content .optgroup:hover {
+  background-color: var(--nav-panel-hover-color);
+}
+
+.optgroup-heading {
+  padding: var(--dropdown-padding);
+  /* cursor: pointer; */
+  font-weight: bold;
+}
+
+/* #nav-selector {
   display: none;
   margin: 0;
   margin: var(--padding-horizontal);
@@ -131,7 +178,7 @@ body {
   #nav-selector {
     display: inline;
   }
-}
+} */
 
 #arena-container {
   margin: 0 auto;
@@ -146,7 +193,6 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  overflow-y: scroll;
   width: 100%;
   height: var(--arena-default-height);
   border: none;
@@ -181,7 +227,6 @@ body {
 .lane-label {
   padding-left: var(--padding-horizontal);
   color: var(--arena-text-color);
-  font-weight: bold;
   font-family: var(--lane-label-font);
   font-size: var(--arena-font-size);
 }
@@ -211,7 +256,6 @@ body {
 .total-time-label {
   position: absolute;
   color: var(--arena-text-color);
-  font-weight: bold;
   font-family: var(--time-label-font);
   font-size: var(--arena-font-size);
 }
