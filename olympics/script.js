@@ -32,21 +32,25 @@ fetch('./data/events.json')
  });
 
  function handleEventClick(event, updateDropdown) {
-  if (updateDropdown) {
-    // Update the button text to the selected option
-    document.querySelector('.dropdown-btn').textContent = event.event;
-    // Close the dropdown after selection
-    document.querySelector('.dropdown-menu').style.display = 'none';
-  }
+  // Update the button text to the selected option
+  document.querySelector('.dropdown-btn').textContent = event.event;
+
+  // Close the dropdown after selection
+  document.querySelector('.dropdown-menu').style.display = 'none';
+
   // Simulate the event
   simulateEvent(event);
 }
 
 /**
- * Populates the navigation menus with the event labels
+ * Populates a navigation menu with the event labels
  * @param {list} events - List of events in json format
+ * @param {string} eventSelectorId - ID of the event selector element
+ * @param {string} eventHeadingClass - Class of the event heading element
+ * @param {string} eventClass - Class of the event label element
+ * @returns 
  */
-function populateEventSelector(events, eventSelectorId, eventHeadingClass, eventClass, updateDropdown) {
+function populateEventSelector(events, eventSelectorId, eventHeadingClass, eventClass) {
 
   // Get the event selector element
   const eventSelector = document.getElementById(eventSelectorId);
@@ -74,11 +78,16 @@ function populateEventSelector(events, eventSelectorId, eventHeadingClass, event
     eventItem.className = eventClass;
     eventItem.textContent = event.event;
     eventItem.value = event.event;
-    eventItem.onclick = () => handleEventClick(event, updateDropdown);
+    eventItem.onclick = () => handleEventClick(event);
     eventSelector.appendChild(eventItem);
   });
 }
 
+/**
+ * Populates all navigation menus with the event labels
+ * @param {list} events - List of events in json format
+ * @returns 
+ */
 function populateAllEventSelectors(events) {
   // Desktop
   populateEventSelector(events, 'nav-panel', 'nav-heading', 'nav-item', false);
@@ -88,6 +97,7 @@ function populateAllEventSelectors(events) {
 
 /**
  * Loads the first event by clicking its label
+ * @returns
  */
 function clickFirstEvent() {
   const eventItemElement = isMobile ? '.dropdown-item' : '.nav-item';
@@ -266,7 +276,6 @@ function populateArena(event) {
 
   // Update positions based on finishing end and longest lane label
   setDynamicPositions(event);
-
 }
 
 /**
@@ -319,8 +328,15 @@ function determinePlacings(results) {
     return results;
 }
 
+/**
+ * Adds a medal to a total time label if applicable
+ * @param {HTMLDivElement} totalTimeLabel - HTML element of the athlete's total time label
+ * @param {number} placing - Ordinal placing of the athlete 
+ * @param {number} totalLaps - Total number of laps in the event
+ * @returns
+ */
 function addMedalIfWon(totalTimeLabel, placing, totalLaps) {
-  // Define the medal abbrevations for each placing
+  // Define the medal abbrevations for each placing. Note that this defines which medals are available.
   const placingAbbrevs = {
     1: 'G',
     2: 'S',
@@ -400,6 +416,7 @@ function formatTime(timeInSeconds) {
  * @param {object} result - Dictionary with details of the lane's result
  * @param {number} totalLaps - Total number of laps in the race
  * @param {number} playbackSpeedFactor - Playback speed factor. 1 is real time; higher values are faster. 
+ * @returns
  */
 function animateDot(result, totalLaps, playbackSpeedFactor) {
   // Initialise counter
@@ -447,7 +464,8 @@ function animateDot(result, totalLaps, playbackSpeedFactor) {
 /**
  * Animates all dots along their lanes for the whole event
  * @param {object} event - Dictionary containing event details 
- * @param {number} playbackSpeedFactor - Playback speed factor. 1 is real time; higher values are faster. 
+ * @param {number} playbackSpeedFactor - Playback speed factor. 1 is real time; higher values are faster.
+ * @returns
  */
 function animateAllDots(event, playbackSpeedFactor) {
   // Total number of laps
@@ -461,7 +479,8 @@ function animateAllDots(event, playbackSpeedFactor) {
 
 /**
  * Simulates an event by moving each dot along the arena
- * @param {object} event - Dictionary containing event details 
+ * @param {object} event - Dictionary containing event details
+ * @returns
  */
 function simulateEvent(event) {
   // Set the playback speed factor
