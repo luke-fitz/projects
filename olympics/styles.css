@@ -45,6 +45,7 @@
     --arena-width: 90vw;
     --body-margin-top: 40px;
     --dot-size: 16px;
+    --drodown-font-size: 1em;
     --dropdown-min-width: 200px;
     --dropdown-padding: 10px;
     --lane-label-margin-top: 5px;
@@ -119,49 +120,26 @@ body {
   padding-top: 0; /* Remove top padding for the first heading */
 }
 
-.dropdown {
+#dropdown-menu {
   display: none;
+  min-width: var(--dropdown-min-width);
 }
 
 @media screen and (max-width: 768px) {
-  .dropdown {
+  #dropdown-menu {
     position: relative;
     display: inline-block;
     margin-bottom: var(--padding-horizontal);
   }
 }
 
-/* .dropdown-btn {
-  background-color: var(--title-bar-color);
-  color: white;
-  padding: var(--dropdown-padding);
-  font-size: 1em;
-  font-family: var(--nav-panel-body-font);
-  border: none;
-  cursor: pointer;
-} */
-
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  background-color: var(--nav-panel-color);
-  min-width: var(--dropdown-min-width);
-  z-index: 1; /* ensures dropdown menu is above arena */
+.dropdown-item {
+  font-size: var(--dropdown-font-size);
 }
 
-/* .dropdown-menu .dropdown-item {
-  padding: var(--dropdown-padding);
-  cursor: pointer;
-} */
-
-/* .dropdown-menu .dropdown-item:hover {
-  background-color: var(--nav-panel-hover-color);
-} */
-
-/* .dropdown-heading {
-  padding: var(--dropdown-padding);
-  font-weight: bold;
-} */
+.dropdown-heading {
+  font-size: var(--dropdown-font-size);
+}
 
 #arena-container {
   margin: 0 auto;

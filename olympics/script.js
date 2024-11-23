@@ -11,158 +11,115 @@ const minLaneHeight = parseInt(
   : style.getPropertyValue('--lane-min-height-desktop')
 );
 
-// Listener for dropdown button clicks
-// document.querySelector('.dropdown-btn').addEventListener('click', function () {
-//   // Close the menu if it is open, and vice versa
-//   const dropdownMenu = document.querySelector('.dropdown-menu');
-//   dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-// });
-
 // Fetch the event data
 fetch('./data/events.json')
   .then(response => response.json())
   .then(data => {
     const events = data.events;
-    populateAllEventSelectors(events);
-    clickFirstEvent();
+    populateEventSelectors(events);
+    loadFirstEvent();
   })
   .catch(error => {
     console.error('Error fetching data:', error);
-    document.getElementById('arena').textContent = 'Failed to load event data. Please try again later.';
+    document.getElementById('arena').textContent = 'Failed to load event data.';
  });
 
- function handleEventClick(event) {
-  // Update the button text to the selected option
-  // document.querySelector('.dropdown-btn').textContent = event.event;
 
-  // // Close the dropdown after selection
-  // document.querySelector('.dropdown-menu').style.display = 'none';
+// Listener for dropdown menu change
+document.getElementById('dropdown-menu').addEventListener('change', function () {
+  // Get the selected option
+  const selectedOption = this.options[this.selectedIndex];
+  // Load its event
+  loadDropdownSelection(selectedOption);
+});
+
+/**
+ * Populates navigation menus with the event labels
+ * @param {list} events - List of events in json format
+ * @returns 
+ */
+function populateEventSelectors(events) {
+
+  // Get the event selector element
+  const navEventSelector = document.getElementById('nav-panel'); // Desktop
+  const dropdownEventSelector = document.getElementById('dropdown-menu'); // Mobile
+
+
+  // Initialise last sport for the heading calculation
+  let lastSport = ''; 
+
+  events.forEach(event => {
+    // Get the event's sport
+    const eventSport = event.sport;
+
+    // Add a sport subheading if it is different to the previous value
+    if (eventSport != lastSport) {
+      // Desktop
+      const navEventHeading = document.createElement('div');
+      navEventHeading.className = 'nav-heading';
+      navEventHeading.textContent = eventSport;
+      navEventSelector.appendChild(navEventHeading);
+
+      // Mobile
+      const dropdownEventHeading = document.createElement('optgroup');
+      dropdownEventHeading.className = 'dropdown-heading';
+      dropdownEventHeading.label = eventSport;
+      dropdownEventSelector.appendChild(dropdownEventHeading);
+
+      // Update the latest sport
+      lastSport = eventSport;
+    }
+
+    // Add event to the selector
+    // Desktop
+    const navEventItem = document.createElement('div');
+    navEventItem.className = 'nav-item';
+    navEventItem.textContent = event.event;
+    navEventItem.value = event.event;
+    navEventItem.onclick = () => simulateEvent(event);
+    navEventSelector.appendChild(navEventItem);
+
+    // Mobile
+    const dropdownEventItem = document.createElement('option');
+    dropdownEventItem.className = 'dropdown-item';
+    dropdownEventItem.textContent = event.event;
+    dropdownEventItem.value = event.event;
+    dropdownEventItem.setAttribute('data-event', JSON.stringify(event));
+    dropdownEventSelector.appendChild(dropdownEventItem);
+
+  });
+}
+
+/**
+ * Loads the selected event from the dropdown menu
+ * @param {HTMLOptionElement} selectedOption - Selected option from the dropdown menu
+ */
+function loadDropdownSelection(selectedOption) {
+  // Retrieve the JSON string and parse into a JavaScript object
+  const eventData = selectedOption.getAttribute('data-event');
+  const event = JSON.parse(eventData);
 
   // Simulate the event
   simulateEvent(event);
 }
 
-function updateSelect(selectedOption) {
-  // Get the selected option
-
-  // Retrieve the JSON string from the data-json attribute
-  const jsonData = selectedOption.getAttribute('data-info');
-
-  // // Parse the JSON string into a JavaScript object
-  const jsonObject = JSON.parse(jsonData);
-
-  // // Pass the JSON object to your function
-  simulateEvent(jsonObject);
-}
-
-document.getElementById('dropdown-menu').addEventListener('change', function () {
-  // Get the selected option
-  const selectedOption = this.options[this.selectedIndex];
-  updateSelect(selectedOption);
-});
-// 
 /**
- * Populates a navigation menu with the event labels
- * @param {list} events - List of events in json format
- * @param {string} eventSelectorId - ID of the event selector element
- * @param {string} eventHeadingClass - Class of the event heading element
- * @param {string} eventClass - Class of the event label element
- * @returns 
- */
-function populateEventSelector(events, eventSelectorId, eventHeadingClass, eventClass) {
-
-  // Get the event selector element
-  const eventSelector = document.getElementById(eventSelectorId);
-
-  // Initialise last sport for the heading calculation
-  let lastSport = ''; 
-
-  events.forEach(event => {
-    // Get the event's sport
-    const eventSport = event.sport;
-
-    // Add a sport subheading if it is different to the previous value
-    if (eventSport != lastSport) {
-      const eventHeading = document.createElement('div');
-      eventHeading.className = eventHeadingClass;
-      eventHeading.textContent = eventSport;
-      eventSelector.appendChild(eventHeading);
-
-      // Update the latest sport
-      lastSport = eventSport;
-    }
-
-    // Add event to the selector
-    const eventItem = document.createElement('div');
-    eventItem.className = eventClass;
-    eventItem.textContent = event.event;
-    eventItem.value = event.event;
-    eventItem.onclick = () => handleEventClick(event);
-    eventSelector.appendChild(eventItem);
-  });
-}
-
-/**
- * Populates all navigation menus with the event labels
- * @param {list} events - List of events in json format
- * @returns 
- */
-function populateAllEventSelectors(events) {
-  // Desktop
-  populateEventSelector(events, 'nav-panel', 'nav-heading', 'nav-item', false);
-  // Mobile
-  // populateEventSelector(events, 'dropdown-menu', 'dropdown-heading', 'dropdown-item', true);
-
-  // Get the event selector element
-  const eventSelector = document.getElementById('dropdown-menu');
-
-  // Initialise last sport for the heading calculation
-  let lastSport = ''; 
-
-  events.forEach(event => {
-    // Get the event's sport
-    const eventSport = event.sport;
-
-    // Add a sport subheading if it is different to the previous value
-    if (eventSport != lastSport) {
-      const eventHeading = document.createElement('optgroup');
-      eventHeading.label = eventSport;
-      eventSelector.appendChild(eventHeading);
-      // eventHeading.className = eventHeadingClass;
-      // eventHeading.textContent = eventSport;
-      // eventSelector.appendChild(eventHeading);
-
-      // Update the latest sport
-      lastSport = eventSport;
-    }
-    // Add event to the selector
-    const eventItem = document.createElement('option');
-    eventItem.className = 'dropdown-item';
-    eventItem.textContent = event.event;
-    eventItem.value = event.event;
-    eventItem.setAttribute('data-info', JSON.stringify(event));
-    // eventItem.onclick = () => handleEventClick(event);
-    eventSelector.appendChild(eventItem);
-  });
-
-}
-
-
-/**
- * Loads the first event by clicking its label
+ * Loads the first event by selecting it
  * @returns
  */
-function clickFirstEvent() {
+function loadFirstEvent() {
   if (isMobile) {
+    // Select the first option
     const eventSelector = document.getElementById('dropdown-menu');
     const firstEventItem = document.querySelector('.dropdown-item');
     eventSelector.value = firstEventItem.value;
-    updateSelect(firstEventItem);
 
+    // Load its event
+    loadDropdownSelection(firstEventItem);
   } else {
+    // Click the first event label
     const firstEventLabel = document.querySelector('.nav-item');
     firstEventLabel.click();
-
   }
 }
 
