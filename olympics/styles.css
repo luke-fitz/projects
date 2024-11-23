@@ -131,7 +131,7 @@ body {
   }
 }
 
-.dropdown-btn {
+/* .dropdown-btn {
   background-color: var(--title-bar-color);
   color: white;
   padding: var(--dropdown-padding);
@@ -139,7 +139,7 @@ body {
   font-family: var(--nav-panel-body-font);
   border: none;
   cursor: pointer;
-}
+} */
 
 .dropdown-menu {
   display: none;
@@ -149,19 +149,19 @@ body {
   z-index: 1; /* ensures dropdown menu is above arena */
 }
 
-.dropdown-menu .dropdown-item {
+/* .dropdown-menu .dropdown-item {
   padding: var(--dropdown-padding);
   cursor: pointer;
-}
+} */
 
-.dropdown-menu .dropdown-item:hover {
+/* .dropdown-menu .dropdown-item:hover {
   background-color: var(--nav-panel-hover-color);
-}
+} */
 
-.dropdown-heading {
+/* .dropdown-heading {
   padding: var(--dropdown-padding);
   font-weight: bold;
-}
+} */
 
 #arena-container {
   margin: 0 auto;

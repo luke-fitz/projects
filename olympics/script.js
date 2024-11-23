@@ -12,11 +12,11 @@ const minLaneHeight = parseInt(
 );
 
 // Listener for dropdown button clicks
-document.querySelector('.dropdown-btn').addEventListener('click', function () {
-  // Close the menu if it is open, and vice versa
-  const dropdownMenu = document.querySelector('.dropdown-menu');
-  dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
-});
+// document.querySelector('.dropdown-btn').addEventListener('click', function () {
+//   // Close the menu if it is open, and vice versa
+//   const dropdownMenu = document.querySelector('.dropdown-menu');
+//   dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+// });
 
 // Fetch the event data
 fetch('./data/events.json')
@@ -31,17 +31,36 @@ fetch('./data/events.json')
     document.getElementById('arena').textContent = 'Failed to load event data. Please try again later.';
  });
 
- function handleEventClick(event, updateDropdown) {
+ function handleEventClick(event) {
   // Update the button text to the selected option
-  document.querySelector('.dropdown-btn').textContent = event.event;
+  // document.querySelector('.dropdown-btn').textContent = event.event;
 
-  // Close the dropdown after selection
-  document.querySelector('.dropdown-menu').style.display = 'none';
+  // // Close the dropdown after selection
+  // document.querySelector('.dropdown-menu').style.display = 'none';
 
   // Simulate the event
   simulateEvent(event);
 }
 
+function updateSelect(selectedOption) {
+  // Get the selected option
+
+  // Retrieve the JSON string from the data-json attribute
+  const jsonData = selectedOption.getAttribute('data-info');
+
+  // // Parse the JSON string into a JavaScript object
+  const jsonObject = JSON.parse(jsonData);
+
+  // // Pass the JSON object to your function
+  simulateEvent(jsonObject);
+}
+
+document.getElementById('dropdown-menu').addEventListener('change', function () {
+  // Get the selected option
+  const selectedOption = this.options[this.selectedIndex];
+  updateSelect(selectedOption);
+});
+// 
 /**
  * Populates a navigation menu with the event labels
  * @param {list} events - List of events in json format
@@ -92,17 +111,59 @@ function populateAllEventSelectors(events) {
   // Desktop
   populateEventSelector(events, 'nav-panel', 'nav-heading', 'nav-item', false);
   // Mobile
-  populateEventSelector(events, 'dropdown-menu', 'dropdown-heading', 'dropdown-item', true);
+  // populateEventSelector(events, 'dropdown-menu', 'dropdown-heading', 'dropdown-item', true);
+
+  // Get the event selector element
+  const eventSelector = document.getElementById('dropdown-menu');
+
+  // Initialise last sport for the heading calculation
+  let lastSport = ''; 
+
+  events.forEach(event => {
+    // Get the event's sport
+    const eventSport = event.sport;
+
+    // Add a sport subheading if it is different to the previous value
+    if (eventSport != lastSport) {
+      const eventHeading = document.createElement('optgroup');
+      eventHeading.label = eventSport;
+      eventSelector.appendChild(eventHeading);
+      // eventHeading.className = eventHeadingClass;
+      // eventHeading.textContent = eventSport;
+      // eventSelector.appendChild(eventHeading);
+
+      // Update the latest sport
+      lastSport = eventSport;
+    }
+    // Add event to the selector
+    const eventItem = document.createElement('option');
+    eventItem.className = 'dropdown-item';
+    eventItem.textContent = event.event;
+    eventItem.value = event.event;
+    eventItem.setAttribute('data-info', JSON.stringify(event));
+    // eventItem.onclick = () => handleEventClick(event);
+    eventSelector.appendChild(eventItem);
+  });
+
 }
+
 
 /**
  * Loads the first event by clicking its label
  * @returns
  */
 function clickFirstEvent() {
-  const eventItemElement = isMobile ? '.dropdown-item' : '.nav-item';
-  const firstEventLabel = document.querySelector(eventItemElement);
-  firstEventLabel.click();
+  if (isMobile) {
+    const eventSelector = document.getElementById('dropdown-menu');
+    const firstEventItem = document.querySelector('.dropdown-item');
+    eventSelector.value = firstEventItem.value;
+    updateSelect(firstEventItem);
+
+  } else {
+    const firstEventLabel = document.querySelector('.nav-item');
+    firstEventLabel.click();
+
+  }
 }
 
 /**
