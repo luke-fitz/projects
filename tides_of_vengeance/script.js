@@ -15,10 +15,9 @@ const minLaneHeight = parseInt(
 fetch('./data/results.json')
   .then(response => response.json())
   .then(data => {
-    console.log(data.length);
     const eventName = data.event;
-    document.getElementById('title-bar').textContent = eventName;
-    simulateEvent(data.results);
+    document.getElementById('title-bar').textContent = eventName; /* TODO: Put in lower function */
+    simulateEvent(data.results, data.lapDistanceMetres); /* TODO: Pass all data */
     // populateEventSelectors(events);
     // loadFirstEvent();
   })
@@ -304,10 +303,9 @@ function populateArena(results) {
  * Sets the lap length annotation below the arena
  * @param {object} event - Dictionary containing event details 
  */
-function setLapMarker(event) {
+function setLapMarker(lapDistanceMetres) {
   const lapMarker = document.getElementById('lap-marker');
-  const lapDistance = event.distance_m / event.laps;
-  lapMarker.textContent = `${lapDistance.toLocaleString()}m`;
+  lapMarker.textContent = `${lapDistanceMetres.toLocaleString()}m`;
 }
 
 /**
@@ -495,13 +493,13 @@ function animateAllDots(event, playbackSpeedFactor) {
  * @param {object} event - Dictionary containing event details
  * @returns
  */
-function simulateEvent(results) {
+function simulateEvent(results, lapDistanceMetres) {
   // Set the playback speed factor
   const playbackSpeedFactor = 20;
 
   // Simulate the event
   // determinePlacings(event.results);
   populateArena(results);
-  // setLapMarker(event);
+  setLapMarker(lapDistanceMetres);
   // animateAllDots(event, playbackSpeedFactor);
 }
