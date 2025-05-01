@@ -301,15 +301,6 @@ function populateArena(results) {
 }
 
 /**
- * Sets the event title
- * @param {object} event - Dictionary containing event details 
- */
-function setEventTitle(event) {
-  const eventTitleElement = document.getElementById('event-title');
-  eventTitleElement.textContent = event.event;
-}
-
-/**
  * Sets the lap length annotation below the arena
  * @param {object} event - Dictionary containing event details 
  */
@@ -510,9 +501,7 @@ function simulateEvent(results) {
 
   // Simulate the event
   // determinePlacings(event.results);
-  console.log(results.length);
   populateArena(results);
-  // setEventTitle(event);
   // setLapMarker(event);
   // animateAllDots(event, playbackSpeedFactor);
 }
