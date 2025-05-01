@@ -12,12 +12,13 @@ const minLaneHeight = parseInt(
 );
 
 // Fetch the event data
-fetch('./data/events.json')
+fetch('./data/results.json')
   .then(response => response.json())
   .then(data => {
-    const events = data.events;
-    populateEventSelectors(events);
-    loadFirstEvent();
+    const event = data.event;
+    document.getElementById('title-bar').textContent = event
+    // populateEventSelectors(events);
+    // loadFirstEvent();
   })
   .catch(error => {
     console.error('Error fetching data:', error);
