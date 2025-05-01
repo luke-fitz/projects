@@ -45,6 +45,9 @@
     --arena-width: 90vw;
     --body-margin-top: 40px;
     --dot-size: 16px;
+    --drodown-font-size: 1em;
+    --dropdown-min-width: 200px;
+    --dropdown-padding: 10px;
     --lane-label-margin-top: 5px;
     --lane-row-2-margin: 25px;
     --lane-min-height-mobile: 55px;
@@ -117,20 +120,25 @@ body {
   padding-top: 0; /* Remove top padding for the first heading */
 }
 
-#nav-selector {
+#dropdown-menu {
   display: none;
-  margin: 0;
-  margin: var(--padding-horizontal);
-  text-align: center;
-  font-family: var(--nav-panel-body-font);
-  font-size: 1em;
-  
+  min-width: var(--dropdown-min-width);
 }
 
 @media screen and (max-width: 768px) {
-  #nav-selector {
-    display: inline;
+  #dropdown-menu {
+    position: relative;
+    display: inline-block;
+    margin-bottom: var(--padding-horizontal);
   }
+}
+
+.dropdown-item {
+  font-size: var(--dropdown-font-size);
+}
+
+.dropdown-heading {
+  font-size: var(--dropdown-font-size);
 }
 
 #arena-container {
@@ -146,7 +154,6 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  overflow-y: scroll;
   width: 100%;
   height: var(--arena-default-height);
   border: none;
@@ -181,7 +188,6 @@ body {
 .lane-label {
   padding-left: var(--padding-horizontal);
   color: var(--arena-text-color);
-  font-weight: bold;
   font-family: var(--lane-label-font);
   font-size: var(--arena-font-size);
 }
@@ -211,7 +217,6 @@ body {
 .total-time-label {
   position: absolute;
   color: var(--arena-text-color);
-  font-weight: bold;
   font-family: var(--time-label-font);
   font-size: var(--arena-font-size);
 }

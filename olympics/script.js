@@ -1,17 +1,4 @@
-// Fetch the event data
-fetch('./data/events.json')
-  .then(response => response.json())
-  .then(data => {
-    const events = data.events;
-    populateNavbar(events);
-    clickFirstEvent();
-  })
-  .catch(error => {
-    console.error('Error fetching data:', error);
-    document.getElementById('arena').textContent = 'Failed to load event data. Please try again later.';
- });
-
-// Precomputed styles
+/// Precomputed styles
 const mediaQuery = window.matchMedia("screen and (max-width: 768px)");
 const isMobile = mediaQuery.matches;
 const style = getComputedStyle(document.documentElement);
@@ -24,14 +11,42 @@ const minLaneHeight = parseInt(
   : style.getPropertyValue('--lane-min-height-desktop')
 );
 
+// Fetch the event data
+fetch('./data/events.json')
+  .then(response => response.json())
+  .then(data => {
+    const events = data.events;
+    populateEventSelectors(events);
+    loadFirstEvent();
+  })
+  .catch(error => {
+    console.error('Error fetching data:', error);
+    document.getElementById('arena').textContent = 'Failed to load event data.';
+ });
+
+
+// Listener for dropdown menu change
+document.getElementById('dropdown-menu').addEventListener('change', function () {
+  // Get the selected option
+  const selectedOption = this.options[this.selectedIndex];
+  // Load its event
+  loadDropdownSelection(selectedOption);
+});
+
 /**
- * Populates the navigation menus with the event labels
+ * Populates navigation menus with the event labels
  * @param {list} events - List of events in json format
+ * @returns 
  */
-function populateNavbar(events) {
-  const navPanel = document.getElementById('nav-panel');
-  const navSelector = document.getElementById('nav-selector');
-  let lastSport = ''; // initialize
+function populateEventSelectors(events) {
+
+  // Get the event selector element
+  const navEventSelector = document.getElementById('nav-panel'); // Desktop
+  const dropdownEventSelector = document.getElementById('dropdown-menu'); // Mobile
+
+
+  // Initialise last sport for the heading calculation
+  let lastSport = ''; 
 
   events.forEach(event => {
     // Get the event's sport
@@ -39,47 +54,73 @@ function populateNavbar(events) {
 
     // Add a sport subheading if it is different to the previous value
     if (eventSport != lastSport) {
-      // Navigation panel
-      const sportHeading = document.createElement('div');
-      sportHeading.className = 'nav-heading';
-      sportHeading.textContent = eventSport;
-      navPanel.appendChild(sportHeading);
+      // Desktop
+      const navEventHeading = document.createElement('div');
+      navEventHeading.className = 'nav-heading';
+      navEventHeading.textContent = eventSport;
+      navEventSelector.appendChild(navEventHeading);
 
-      // Navigation selector
-      const sportOptGroup = document.createElement('optgroup');
-      sportOptGroup.label = eventSport;
-      navSelector.appendChild(sportOptGroup);
+      // Mobile
+      const dropdownEventHeading = document.createElement('optgroup');
+      dropdownEventHeading.className = 'dropdown-heading';
+      dropdownEventHeading.label = eventSport;
+      dropdownEventSelector.appendChild(dropdownEventHeading);
 
       // Update the latest sport
       lastSport = eventSport;
     }
 
-    // Add the event button
-    // Navigation panel
-    const eventButton = document.createElement('div');
-    eventButton.textContent = event.event;
-    eventButton.className = 'nav-item';
-    eventButton.onclick = () => simulateEvent(event);
-    navPanel.appendChild(eventButton);
+    // Add event to the selector
+    // Desktop
+    const navEventItem = document.createElement('div');
+    navEventItem.className = 'nav-item';
+    navEventItem.textContent = event.event;
+    navEventItem.value = event.event;
+    navEventItem.onclick = () => simulateEvent(event);
+    navEventSelector.appendChild(navEventItem);
 
-    // Navigation selector
-    const selectOption = document.createElement('option');
-    selectOption.value = event.event;
-    selectOption.textContent = event.event;
-    selectOption.className = 'select.item';
-    selectOption.onclick = () => simulateEvent(event);
-    navSelector.append(selectOption);
-    
+    // Mobile
+    const dropdownEventItem = document.createElement('option');
+    dropdownEventItem.className = 'dropdown-item';
+    dropdownEventItem.textContent = event.event;
+    dropdownEventItem.value = event.event;
+    dropdownEventItem.setAttribute('data-event', JSON.stringify(event));
+    dropdownEventSelector.appendChild(dropdownEventItem);
 
   });
 }
 
 /**
- * Loads the first event by clicking its label
+ * Loads the selected event from the dropdown menu
+ * @param {HTMLOptionElement} selectedOption - Selected option from the dropdown menu
  */
-function clickFirstEvent() {
-  const firstEventLabel = document.querySelector('.nav-item');
-  firstEventLabel.click()
+function loadDropdownSelection(selectedOption) {
+  // Retrieve the JSON string and parse into a JavaScript object
+  const eventData = selectedOption.getAttribute('data-event');
+  const event = JSON.parse(eventData);
+
+  // Simulate the event
+  simulateEvent(event);
+}
+
+/**
+ * Loads the first event by selecting it
+ * @returns
+ */
+function loadFirstEvent() {
+  if (isMobile) {
+    // Select the first option
+    const eventSelector = document.getElementById('dropdown-menu');
+    const firstEventItem = document.querySelector('.dropdown-item');
+    eventSelector.value = firstEventItem.value;
+
+    // Load its event
+    loadDropdownSelection(firstEventItem);
+  } else {
+    // Click the first event label
+    const firstEventLabel = document.querySelector('.nav-item');
+    firstEventLabel.click();
+  }
 }
 
 /**
@@ -104,7 +145,7 @@ function setArenaElement(event, arenaHeight) {
 function setLaneElement(result, laneHeightPercent) {
   const lane = document.createElement('div');
   lane.className = 'lane';
-  lane.id = `lane-${result.lane}`
+  lane.id = `lane-${result.lane}`;
   lane.style.height = laneHeightPercent + '%';
   return lane;
 }
@@ -131,7 +172,7 @@ function setDotElement(result) {
   const dot = document.createElement('div');
   dot.className = 'dot';
   dot.id = `dot-${result.lane}`;
-  return dot
+  return dot;
 }
 
 /**
@@ -144,7 +185,7 @@ function setTotalTimeLabelElement(result) {
   totalTimeLabel.className = 'total-time-label';
   totalTimeLabel.id = `total-time-label-${result.lane}`;
   totalTimeLabel.textContent = '';  // Initially blank
-  return totalTimeLabel
+  return totalTimeLabel;
 }
 
 /**
@@ -253,7 +294,6 @@ function populateArena(event) {
 
   // Update positions based on finishing end and longest lane label
   setDynamicPositions(event);
-
 }
 
 /**
@@ -306,8 +346,15 @@ function determinePlacings(results) {
     return results;
 }
 
+/**
+ * Adds a medal to a total time label if applicable
+ * @param {HTMLDivElement} totalTimeLabel - HTML element of the athlete's total time label
+ * @param {number} placing - Ordinal placing of the athlete 
+ * @param {number} totalLaps - Total number of laps in the event
+ * @returns
+ */
 function addMedalIfWon(totalTimeLabel, placing, totalLaps) {
-  // Define the medal abbrevations for each placing
+  // Define the medal abbrevations for each placing. Note that this defines which medals are available.
   const placingAbbrevs = {
     1: 'G',
     2: 'S',
@@ -387,6 +434,7 @@ function formatTime(timeInSeconds) {
  * @param {object} result - Dictionary with details of the lane's result
  * @param {number} totalLaps - Total number of laps in the race
  * @param {number} playbackSpeedFactor - Playback speed factor. 1 is real time; higher values are faster. 
+ * @returns
  */
 function animateDot(result, totalLaps, playbackSpeedFactor) {
   // Initialise counter
@@ -434,7 +482,8 @@ function animateDot(result, totalLaps, playbackSpeedFactor) {
 /**
  * Animates all dots along their lanes for the whole event
  * @param {object} event - Dictionary containing event details 
- * @param {number} playbackSpeedFactor - Playback speed factor. 1 is real time; higher values are faster. 
+ * @param {number} playbackSpeedFactor - Playback speed factor. 1 is real time; higher values are faster.
+ * @returns
  */
 function animateAllDots(event, playbackSpeedFactor) {
   // Total number of laps
@@ -448,7 +497,8 @@ function animateAllDots(event, playbackSpeedFactor) {
 
 /**
  * Simulates an event by moving each dot along the arena
- * @param {object} event - Dictionary containing event details 
+ * @param {object} event - Dictionary containing event details
+ * @returns
  */
 function simulateEvent(event) {
   // Set the playback speed factor
