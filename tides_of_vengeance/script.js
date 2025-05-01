@@ -15,8 +15,10 @@ const minLaneHeight = parseInt(
 fetch('./data/results.json')
   .then(response => response.json())
   .then(data => {
-    const event = data.event;
-    document.getElementById('title-bar').textContent = event
+    console.log(data.length);
+    const eventName = data.event;
+    document.getElementById('title-bar').textContent = eventName;
+    simulateEvent(data.results);
     // populateEventSelectors(events);
     // loadFirstEvent();
   })
@@ -129,9 +131,9 @@ function loadFirstEvent() {
  * @param {list} events - List of events in json format
  * @returns 
  */
-function setArenaElement(event, arenaHeight) {
+function setArenaElement(arenaHeight) {
   const arena = document.getElementById('arena');
-  arena.setAttribute('arena-sport', event.sport);
+  arena.setAttribute('arena-sport', 'Swimming'); /* TODO: fix */
   arena.style.height = `${arenaHeight}px`;
   arena.innerHTML = ''; // Clear existing lanes
   return arena;
@@ -160,7 +162,7 @@ function setLaneLabelElement(result) {
   const laneLabel = document.createElement('div');
   laneLabel.className = 'lane-label';
   laneLabel.id = `lane-label-${result.lane}`;
-  laneLabel.textContent = result.athlete + ' (' + result.country + ')';
+  laneLabel.textContent = result.team;
   return laneLabel;
 }
 
@@ -216,12 +218,13 @@ function eventFinishesOnRight(totalLaps) {
  * Sets dynamic positions of objects in document based on the maximum lane label width
  * @param {object} event - Dictionary containing event details 
  */
-function setDynamicPositions(event) {
+function setDynamicPositions() {
   // Get document elements
   const maxLaneLabelWidth = calculateMaxLaneLabelWidth() + 'px';
   const lanes = document.querySelectorAll('.lane');
-  const totalLaps = event.laps;
-  const finishOnRight = eventFinishesOnRight(totalLaps);
+  // const totalLaps = event.laps;
+  // const finishOnRight = eventFinishesOnRight(totalLaps);
+  const finishOnRight = false;
 
   lanes.forEach(lane => {
     // Dot position
@@ -269,17 +272,17 @@ function setDynamicPositions(event) {
  * Populates the arena when an event is first loaded
  * @param {object} event - Dictionary containing event details 
  */
-function populateArena(event) {
+function populateArena(results) {
 
   // Calculate lane height and arena height
-  const numberOfLanes = event.results.length;
+  const numberOfLanes = results.length;
   const laneHeightPercent = (100 / numberOfLanes).toFixed(2);
   const arenaHeight = Math.max(numberOfLanes * minLaneHeight, defaultArenaHeight);
 
   // Set arena element
-  const arena = setArenaElement(event, arenaHeight);
+  const arena = setArenaElement(arenaHeight);
 
-  event.results.forEach(result => {
+  results.forEach(result => {
     // Set elements within the arena
     const lane = setLaneElement(result, laneHeightPercent);
     const laneLabel = setLaneLabelElement(result);
@@ -294,7 +297,7 @@ function populateArena(event) {
   });
 
   // Update positions based on finishing end and longest lane label
-  setDynamicPositions(event);
+  setDynamicPositions();
 }
 
 /**
@@ -501,14 +504,15 @@ function animateAllDots(event, playbackSpeedFactor) {
  * @param {object} event - Dictionary containing event details
  * @returns
  */
-function simulateEvent(event) {
+function simulateEvent(results) {
   // Set the playback speed factor
   const playbackSpeedFactor = 20;
 
   // Simulate the event
-  determinePlacings(event.results);
-  populateArena(event);
-  setEventTitle(event);
-  setLapMarker(event);
-  animateAllDots(event, playbackSpeedFactor);
+  // determinePlacings(event.results);
+  console.log(results.length);
+  populateArena(results);
+  // setEventTitle(event);
+  // setLapMarker(event);
+  // animateAllDots(event, playbackSpeedFactor);
 }
