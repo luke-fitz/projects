@@ -1,0 +1,41 @@
+{
+    "event": "Tides of Vengeance 2025",
+    "lapDistanceMetres": 50,
+    "lapsPerAthlete": 2,
+    "results": [
+        {
+            "lane": 1,
+            "team": "Bondi",
+            "handicapSeconds": 0,
+            "athletes": [
+                {
+                    "leg": 1,
+                    "athleteName": "Bondi First",
+                    "timeSeconds": 5
+                },
+                {
+                    "leg": 2,
+                    "athleteName": "Bondi Second",
+                    "timeSeconds": 10
+                }
+            ]
+        },                
+        {
+            "lane": 2,
+            "team": "North Bondi",
+            "handicapSeconds": 2,
+            "athletes": [
+                {
+                    "leg": 1,
+                    "athleteName": "North Bondi First",
+                    "timeSeconds": 5
+                },
+                {
+                    "leg": 2,
+                    "athleteName": "North Bondi Second",
+                    "timeSeconds": 7
+                }
+            ]
+        }
+    ]
+}
