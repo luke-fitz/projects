@@ -7,7 +7,7 @@
   --arena-ocean-color: #006994;
   --arena-beach-frac: 0.625;
   --arena-default-color: grey;
-  --arena-default-height: 400px;
+  --arena-default-height: 250px;
   --arena-text-color: black;
   --arena-font-size: 1em;
   --arena-width: 80vw;
@@ -46,15 +46,17 @@
   :root {
     --arena-font-size: 0.8em;
     --arena-width: 90vw;
+    --arena-start-left: 0px;
     --body-margin-top: 40px;
     --dot-size: 16px;
     --drodown-font-size: 1em;
     --dropdown-min-width: 200px;
     --dropdown-padding: 10px;
     --lane-label-margin-top: 5px;
-    --lane-row-2-margin: 25px;
+    --lane-row-2-margin: 45px;
     --lane-min-height-mobile: 55px;
-    --title-font-size: 0.6em;
+    --time-label-longest: 100px;
+    --title-font-size: 1em;
     --title-padding: 5px;
   }
 }
@@ -62,8 +64,6 @@
 @media screen and (max-width: 1024px) {
   :root {
     --body-margin-top: 60px;
-    --title-font-size: 0.6em;
-    --title-padding: 5px;
   }
 }
 
@@ -233,6 +233,7 @@ body {
 @media screen and (max-width: 768px) {
   .dot {
     margin-top: var(--lane-row-2-margin);
+    left: calc(var(--arena-start-left) + var(--padding-horizontal));
   }
 }
 
