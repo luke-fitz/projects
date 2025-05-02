@@ -213,27 +213,36 @@ body {
   height: var(--dot-size);
   transition: transform 1s linear;
   border-radius: 50%; /* circle */
-  /* background-color: var(--dot-color); */
-  /* background: linear-gradient(to right, 
+  box-shadow: 0px 2px 6px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dot[dot-team = "Bondi"] {
+  background: conic-gradient(
+    navy 0% 25%,
+    white 25% 50%,
+    navy 50% 75%,
+    white 75% 100%
+  );
+}
+
+.dot[dot-team = "North Bondi"] {
+  background: linear-gradient(
+    to right, 
   navy 20%, 
   white 20% 40%, 
   red 40% 60%, 
   white 60% 80%, 
-  navy 80%); */
-  /* background: conic-gradient(
-    red 0% 12.5%,
-    yellow 12.5% 37.5%,
-    red 37.5% 62.5%,
-    yellow 62.5% 87.5%,
-    red 87.5% 100%
-  ); */
+  navy 80%
+  );
+}
+
+.dot[dot-team = "Barbarians"] {
   background: conic-gradient(
     yellow 0% 25%,
     red 25% 50%,
     yellow 50% 75%,
     red 75% 100%
   );
-  box-shadow: 0px 2px 6px 3px rgba(0, 0, 0, 0.3);
 }
 
 @media screen and (max-width: 768px) {
@@ -265,7 +274,7 @@ body {
   font-size: var(--medal-font-size);
   text-align: center;
   line-height: 20px;
-  border: 0.5px solid white;
+  border: 0.5px solid #666666;
   box-shadow: 0px 2px 6px 3px rgba(0, 0, 0, 0.3);
   top: 50%;
   transform: translateY(-50%);

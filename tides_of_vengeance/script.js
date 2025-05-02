@@ -75,6 +75,7 @@ function setDotElement(result) {
   const dot = document.createElement('div');
   dot.className = 'dot';
   dot.id = `dot-${result.lane}`;
+  dot.setAttribute('dot-team', result.team);
   return dot;
 }
 
