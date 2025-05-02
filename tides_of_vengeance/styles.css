@@ -3,8 +3,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Bruno Ace&display=swap');
 
 :root {
-  --arena-athletics-color: #E1C16E;
-  --arena-swimming-color: #006994;
+  --arena-beach-color: #E1C16E;
+  --arena-ocean-color: #006994;
+  --arena-beach-frac: 0.625;
   --arena-default-color: grey;
   --arena-default-height: 400px;
   --arena-text-color: black;
@@ -159,22 +160,6 @@ body {
   width: 100%;
   height: var(--arena-default-height);
   border: none;
-  /* background-color: var(--arena-default-color); */
-  
-  background: linear-gradient(
-    to right, 
-    var(--page-background-color) 0 var(--arena-start-left), 
-    var(--arena-athletics-color) var(--arena-start-left) 70%,
-    var(--arena-swimming-color) 70% 100%
-    );
-}
-
-#arena[arena-sport = "Swimming"] {
-  background-color: var(--arena-swimming-color);
-}
-
-#arena[arena-sport = "Athletics"] {
-  background-color: var(--arena-athletics-color);
 }
 
 .lane {

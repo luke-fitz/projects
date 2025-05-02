@@ -4,6 +4,7 @@ const isMobile = mediaQuery.matches;
 const style = getComputedStyle(document.documentElement);
 const defaultArenaHeight = parseInt(style.getPropertyValue('--arena-default-height'));
 const arenaStartLeft = parseInt(style.getPropertyValue('--arena-start-left'));
+const arenaBeachFrac = parseFloat(style.getPropertyValue('--arena-beach-frac'));
 const paddingHorizontal = parseInt(style.getPropertyValue('--padding-horizontal'));
 const timeLabelLongest = parseInt(style.getPropertyValue('--time-label-longest'));
 const minLaneHeight = parseInt(
@@ -11,6 +12,9 @@ const minLaneHeight = parseInt(
   ? style.getPropertyValue('--lane-min-height-mobile')
   : style.getPropertyValue('--lane-min-height-desktop')
 );
+
+window.addEventListener('resize', setArenaBackground);
+window.addEventListener('DOMContentLoaded', setArenaBackground  );
 
 // Fetch the event data
 fetch('./data/results.json')
@@ -26,6 +30,22 @@ fetch('./data/results.json')
  });
 
 
+ function setArenaBackground() {
+  const arena = document.getElementById('arena');
+
+  const totalWidth = arena.offsetWidth;
+  const remaining = totalWidth - arenaStartLeft;
+  const beachWidth = remaining * arenaBeachFrac;
+
+  arena.style.background = `
+    linear-gradient(
+      to right,
+      ${style.getPropertyValue('--page-background-color')} 0 ${arenaStartLeft}px,
+      ${style.getPropertyValue('--arena-beach-color')} ${arenaStartLeft}px ${arenaStartLeft + beachWidth}px,
+      ${style.getPropertyValue('--arena-ocean-color')} ${arenaStartLeft + beachWidth}px 100%
+    )
+  `;
+ }
 /**
  * Initializes the arena element
  * @param {list} events - List of events in json format
@@ -33,7 +53,7 @@ fetch('./data/results.json')
  */
 function setArenaElement(arenaHeight) {
   const arena = document.getElementById('arena');
-  arena.setAttribute('arena-sport', 'Swimming'); /* TODO: fix */
+  setArenaBackground();
   arena.style.height = `${arenaHeight}px`;
   arena.innerHTML = ''; // Clear existing lanes
   return arena;
@@ -376,7 +396,7 @@ function animateDot(result, playbackSpeedFactor) {
         startTime = null;
         requestAnimationFrame(animate);
       } else {
-        laneLabel.innerHTML = result.team + '<br>&nbsp;';
+        laneLabel.innerHTML = result.team;
         totalTimeLabel.textContent = formatTime(result.totalTimeSeconds);
         addMedalIfWon(totalTimeLabel, result.placing, lapsPerAthlete);
       }
