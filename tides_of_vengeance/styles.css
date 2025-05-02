@@ -21,6 +21,7 @@
   --lane-label-width: 150px;
   --lane-label-font: "Roboto Mono";
   --lanel-label-text-color: black;
+  --lap-marker-color: grey;
   --lap-marker-font: "Roboto";
   --medal-offset-left: -100px;
   --medal-font-size: 1em;
@@ -64,7 +65,7 @@
 
 body {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   height: 100vh;
   margin: 0;
   margin-top: var(--body-margin-top);
@@ -88,6 +89,18 @@ body {
   width: 100%;
   height: var(--arena-default-height);
   border: none;
+}
+
+#playback-speed-container {
+  margin-top: 1rem;
+  text-align: right;
+  padding-right: 10%;
+  font-family: var(--lap-marker-font);
+  color: var(--lap-marker-color);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 .lane {
@@ -207,7 +220,7 @@ body {
 }
 
 #lap-marker {
-  color: grey;
+  color: var(--lap-marker-color);
   font-size: 18px;
   font-family: var(--lap-marker-font);
   text-align: right;
