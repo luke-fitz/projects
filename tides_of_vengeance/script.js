@@ -161,7 +161,7 @@ function setLaneLabelElement(result) {
   const laneLabel = document.createElement('div');
   laneLabel.className = 'lane-label';
   laneLabel.id = `lane-label-${result.lane}`;
-  laneLabel.textContent = result.team;
+  laneLabel.innerHTML = result.team + '<br>&nbsp;';
   return laneLabel;
 }
 
@@ -314,15 +314,21 @@ function setLapMarker(lapDistanceMetres) {
  * @returns 
  */
 function determinePlacings(results) {
+
+    results.forEach(result => {
+      const totalAthleteTime = result.athletes.reduce((acc, athlete) => acc + athlete.timeSeconds, 0);
+      result.totalTimeSeconds = totalAthleteTime + result.handicapSeconds;
+  });
+
     // Sort the results by timeSeconds in ascending order
-    results.sort((a, b) => a.timeSeconds - b.timeSeconds);
+    results.sort((a, b) => a.totalTimeSeconds - b.totalTimeSeconds);
 
     // Initialize placing and a counter for ties
     let placing = 1;
     let tieCount = 0;
 
     for (let i = 0; i < results.length; i++) {
-        if (i > 0 && results[i].timeSeconds === results[i - 1].timeSeconds) {
+        if (i > 0 && results[i].totalTimeSeconds === results[i - 1].totalTimeSeconds) {
             // If tied with the previous time, assign the same placing
             results[i].placing = placing;
             tieCount++; // Increase the tie count
@@ -422,6 +428,59 @@ function formatTime(timeInSeconds) {
   }
 }
 
+function animateDot(result, playbackSpeedFactor) {
+  const lapsPerAthlete = 2;
+  const laneNumber = result.lane;
+  const dot = document.getElementById(`dot-${laneNumber}`);
+  const laneLabel = document.getElementById(`lane-label-${result.lane}`);
+  const totalTimeLabel = document.getElementById(`total-time-label-${result.lane}`);
+  // Calculate lap distance
+  const lapDistance = calculateLapDistance(dot);
+  dotLeft = parseFloat(getComputedStyle(dot).left);
+  let laps = [];
+
+  result.athletes.forEach(athlete => {
+    laps.push({ leg: athlete.leg, direction: 1, duration: athlete.timeSeconds / 2, athleteName: athlete.athleteName }); // forward
+    laps.push({ leg: athlete.leg, direction: -1, duration: athlete.timeSeconds / 2, athleteName: athlete.athleteName  }); // back
+  });
+
+  let startTime = null;
+  let currentLap = 0;
+
+  function animate(timestamp) {
+    if (!startTime) startTime = timestamp;
+
+    const lap = laps[currentLap];
+    const lapDurationMs = lap.duration * 1000 / playbackSpeedFactor;
+    const elapsed = timestamp - startTime;
+    const progress = Math.min(elapsed / lapDurationMs, 1); // 0 to 1
+
+    const position = lap.direction === 1
+      ? progress * (lapDistance - 20) + dotLeft
+      : (1 - progress) * (lapDistance - 20) + dotLeft;
+
+    dot.style.left =  `${position}px`;
+
+    laneLabel.innerHTML = result.team + '<br>' + '(' + lap.leg + ') ' + lap.athleteName;
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      currentLap++;
+      if (currentLap < laps.length) {
+        startTime = null;
+        requestAnimationFrame(animate);
+      } else {
+        addMedalIfWon(totalTimeLabel, result.placing, lapsPerAthlete);
+      }
+    }
+  }
+
+  setTimeout(() => {
+    requestAnimationFrame(animate);
+  }, result.handicapSeconds * 1000 / playbackSpeedFactor);
+
+}
 /**
  * Animates a dot along its lane for the whole event
  * @param {object} result - Dictionary with details of the lane's result
@@ -429,47 +488,56 @@ function formatTime(timeInSeconds) {
  * @param {number} playbackSpeedFactor - Playback speed factor. 1 is real time; higher values are faster. 
  * @returns
  */
-function animateDot(result, totalLaps, playbackSpeedFactor) {
+function animateDot2(result, playbackSpeedFactor) {
   // Initialise counter
   let completedLaps = 0;
+
+  // TODO: Make data-driven
+  const lapsPerAthlete = 2
+  const numberOfLegs = result.athletes.length;
+  const totalLaps = lapsPerAthlete * numberOfLegs;
+  console.log(totalLaps);
 
   // Get objects from document
   const laneNumber = result.lane;
   const dot = document.getElementById(`dot-${laneNumber}`);
   const totalTimeLabel = document.getElementById(`total-time-label-${laneNumber}`);
 
-  // Calculate real time and clock time
-  const totalTime = result.timeSeconds;
-  const totalClockTime = totalTime / playbackSpeedFactor;
-  const lapClockTime = totalClockTime / totalLaps;
+  result.athletes.forEach(athlete => {
+    console.log(completedLaps); 
+    // Calculate real time and clock time
+    const totalTime = athlete.timeSeconds;
+    const totalClockTime = totalTime / playbackSpeedFactor;
+    const lapClockTime = totalClockTime / lapsPerAthlete;
 
-  // Calculate lap distance
-  const lapDistance = calculateLapDistance(dot);
+    // Calculate lap distance
+    const lapDistance = calculateLapDistance(dot);
 
-  function completeNextLap() {
-    // Last lap: set time label and exit function
-    if (completedLaps >= totalLaps) {
-      // Set time label
-      totalTimeLabel.textContent = formatTime(totalTime);
+    function completeNextLap() {
+      // Last lap: set time label and exit function
+      if (completedLaps >= totalLaps) {
+        // Set time label
+        totalTimeLabel.textContent = formatTime(totalTime);
 
-      // Add a medal (if applicable)
-      addMedalIfWon(totalTimeLabel, result.placing, totalLaps);
-      return;
+        // Add a medal (if applicable)
+        // addMedalIfWon(totalTimeLabel, result.placing, lapsPerAthlete);
+        return;
+      }
+
+      // Determine the position based on lap
+      const newPosition = completedLaps % 2 === 0 ? lapDistance : 0;
+      dot.style.transitionDuration = `${lapClockTime}s`;
+      dot.style.transform = `translateX(${newPosition}px)`;
+
+      // Move the dot and increment laps count
+      setTimeout(() => {
+        completedLaps++;
+        completeNextLap(); // Continue to the next lap
+      }, lapClockTime * 1000);
     }
 
-    // Determine the position based on lap
-    const newPosition = completedLaps % 2 === 0 ? lapDistance : 0;
-    dot.style.transitionDuration = `${lapClockTime}s`;
-    dot.style.transform = `translateX(${newPosition}px)`;
-
-    // Move the dot and increment laps count
-    setTimeout(() => {
-      completedLaps++;
-      completeNextLap(); // Continue to the next lap
-    }, lapClockTime * 1000);
-  }
-
-  completeNextLap();
+    completeNextLap();
+  });
 }
 
 /**
@@ -478,13 +546,13 @@ function animateDot(result, totalLaps, playbackSpeedFactor) {
  * @param {number} playbackSpeedFactor - Playback speed factor. 1 is real time; higher values are faster.
  * @returns
  */
-function animateAllDots(event, playbackSpeedFactor) {
+function animateAllDots(results, playbackSpeedFactor) {
   // Total number of laps
-  const totalLaps = event.laps;
+  // const totalLaps = event.laps;
 
   // Animate each dot
-  event.results.forEach(result => {
-    animateDot(result, totalLaps, playbackSpeedFactor);
+  results.forEach(result => {
+    animateDot(result, playbackSpeedFactor);
   });
 }
 
@@ -495,11 +563,11 @@ function animateAllDots(event, playbackSpeedFactor) {
  */
 function simulateEvent(results, lapDistanceMetres) {
   // Set the playback speed factor
-  const playbackSpeedFactor = 20;
+  const playbackSpeedFactor = 10;
 
   // Simulate the event
-  // determinePlacings(event.results);
+  determinePlacings(results);
   populateArena(results);
   setLapMarker(lapDistanceMetres);
-  // animateAllDots(event, playbackSpeedFactor);
+  animateAllDots(results, playbackSpeedFactor);
 }
