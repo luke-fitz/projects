@@ -346,9 +346,10 @@ function formatTime(timeInSeconds) {
 /**
  * Animates a dot along its lane for the whole event
  * @param {object} result - Dictionary with details of the lane's result
+ * @param {number} lapsPerAthlete - Number of laps per athlete
  * @returns
  */
-function animateDot(result) {
+function animateDot(result, lapsPerAthlete) {
 
   // Get page elements
   const laneNumber = result.lane;
@@ -363,8 +364,8 @@ function animateDot(result) {
 
   // Push lap data into list
   result.athletes.forEach(athlete => {
-    laps.push({ leg: athlete.leg, athleteName: athlete.athleteName, direction: 1, duration: athlete.timeSeconds / 2 }); // forward
-    laps.push({ leg: athlete.leg, athleteName: athlete.athleteName, direction: -1, duration: athlete.timeSeconds / 2 }); // back
+    laps.push({ leg: athlete.leg, athleteName: athlete.athleteName, direction: 1, duration: athlete.timeSeconds / lapsPerAthlete }); // forward
+    laps.push({ leg: athlete.leg, athleteName: athlete.athleteName, direction: -1, duration: athlete.timeSeconds / lapsPerAthlete }); // back
   });
 
   let startTime = null;
@@ -425,9 +426,12 @@ function animateDot(result) {
  */
 function animateAllDots(event) {
 
+  // Get laps per athlete
+  const lapsPerAthlete = event.lapsPerAthlete;
+
   // Animate each dot
   event.results.forEach(result => {
-    animateDot(result);
+    animateDot(result, lapsPerAthlete);
   });
 }
 
