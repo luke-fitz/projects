@@ -1,4 +1,7 @@
-/// Precomputed styles
+// Playback speed factor
+const playbackSpeedFactor = 2000;
+
+// Precomputed styles
 const mediaQuery = window.matchMedia("screen and (max-width: 768px)");
 const isMobile = mediaQuery.matches;
 const style = getComputedStyle(document.documentElement);
@@ -13,30 +16,35 @@ const minLaneHeight = parseInt(
   : style.getPropertyValue('--lane-min-height-desktop')
 );
 
+// Reset beach vs ocean background widths upon resize
 window.addEventListener('resize', setArenaBackground);
-window.addEventListener('DOMContentLoaded', setArenaBackground  );
+window.addEventListener('DOMContentLoaded', setArenaBackground);
 
 // Fetch the event data
-fetch('./data/results.json')
+fetch('./data/event.json')
   .then(response => response.json())
-  .then(data => {
-    const eventName = data.event;
-    document.getElementById('title-bar').textContent = eventName; /* TODO: Put in lower function */
-    simulateEvent(data.results, data.lapDistanceMetres); /* TODO: Pass all data */
+  .then(event => {
+    simulateEvent(event);
   })
   .catch(error => {
     console.error('Error fetching data:', error);
     document.getElementById('arena').textContent = 'Failed to load event data.';
  });
 
-
+/**
+ * Sets the arena background
+ * @returns 
+ */
  function setArenaBackground() {
+  // Get arena element
   const arena = document.getElementById('arena');
 
+  // Calculate beach width in pixels
   const totalWidth = arena.offsetWidth;
   const remaining = totalWidth - arenaStartLeft;
   const beachWidth = remaining * arenaBeachFrac;
 
+  // Set background
   arena.style.background = `
     linear-gradient(
       to right,
@@ -46,9 +54,10 @@ fetch('./data/results.json')
     )
   `;
  }
+
 /**
  * Initializes the arena element
- * @param {list} events - List of events in json format
+ * @param {number} arenaHeight - Height of the arena in pixels
  * @returns 
  */
 function setArenaElement(arenaHeight) {
@@ -113,57 +122,30 @@ function setTotalTimeLabelElement(result) {
 }
 
 /**
- * Calculates the maximum lane label width in the document
- * @returns {number} Maximum lane label width in the document
- */
-function calculateMaxLaneLabelWidth() {
-  const labels = document.querySelectorAll('.lane-label');
-  let maxWidth = 0;
-  labels.forEach(label => {
-    const width = label.offsetWidth;
-    if (width > maxWidth) maxWidth = width;
-  });
-  return maxWidth;
-}
-
-/**
- * Indicates whether an event finishes on the right-hand side of the arena
- * @param {number} totalLaps 
- * @returns {boolean} True if the event finishes on the right-hand side of the arena; false otherwise
- */
-function eventFinishesOnRight(totalLaps) {
-  return (totalLaps % 2 === 1);
-}
-
-/**
  * Sets dynamic positions of objects in document based on the maximum lane label width
- * @param {object} event - Dictionary containing event details 
  */
 function setDynamicPositions() {
   // Get document elements
-  // const maxLaneLabelWidth = calculateMaxLaneLabelWidth() + 'px';
   const lanes = document.querySelectorAll('.lane');
-  // const totalLaps = event.laps;
-  // const finishOnRight = eventFinishesOnRight(totalLaps);
   const finishOnRight = false;
-  console.log(paddingHorizontal);
 
   lanes.forEach(lane => {
     // Dot position
-    dot = lane.querySelector('.dot');
+    const dot = lane.querySelector('.dot');
+
     if (isMobile) {
       // Mobile
       dot.style.left = arenaStartLeft + paddingHorizontal;
     } else {
       // Desktop
       dot.style.left = (arenaStartLeft + paddingHorizontal) + 'px';
-      // `calc(${arenaStartLeft} + ${paddingHorizontal})`;
     }
-    dotLeft = parseInt(getComputedStyle(dot).left);
-    dotWidth = parseInt(getComputedStyle(dot).width);
+    const dotStyle = getComputedStyle(dot);
+    const dotLeft = parseInt(dotStyle.left);
+    const dotWidth = parseInt(dotStyle.width);
 
     // Total time label position
-    totalTimeLabel = lane.querySelector('.total-time-label');
+    const totalTimeLabel = lane.querySelector('.total-time-label');
 
     if (isMobile) {
       // Mobile
@@ -184,7 +166,6 @@ function setDynamicPositions() {
         totalTimeLabel.style.right = (arenaStartLeft + dotWidth + 2 * paddingHorizontal) + 'px';
       } else {
         // Desktop, finishes on left
-        console.log(arenaStartLeft + dotLeft + dotWidth + paddingHorizontal);
         totalTimeLabel.style.left = (arenaStartLeft + dotWidth + 2 * paddingHorizontal) + 'px';
         totalTimeLabel.style.right = 'auto';
       }
@@ -196,17 +177,24 @@ function setDynamicPositions() {
  * Populates the arena when an event is first loaded
  * @param {object} event - Dictionary containing event details 
  */
-function populateArena(results) {
+function populateArena(event) {
+
+  // Set title
+  document.getElementById('title-bar').textContent = event.eventName;
+  document.title = event.eventName;
 
   // Calculate lane height and arena height
-  const numberOfLanes = results.length;
+  const numberOfLanes = event.results.length;
   const laneHeightPercent = (100 / numberOfLanes).toFixed(2);
   const arenaHeight = Math.max(numberOfLanes * minLaneHeight, defaultArenaHeight);
 
   // Set arena element
   const arena = setArenaElement(arenaHeight);
+  
+  // Set lap marker
+  setLapMarker(event.lapDistanceMetres);
 
-  results.forEach(result => {
+  event.results.forEach(result => {
     // Set elements within the arena
     const lane = setLaneElement(result, laneHeightPercent);
     const laneLabel = setLaneLabelElement(result);
@@ -226,7 +214,7 @@ function populateArena(results) {
 
 /**
  * Sets the lap length annotation below the arena
- * @param {object} event - Dictionary containing event details 
+ * @param {number} lapDistanceMetres - Distance of one lap in metres
  */
 function setLapMarker(lapDistanceMetres) {
   const lapMarker = document.getElementById('lap-marker');
@@ -240,34 +228,35 @@ function setLapMarker(lapDistanceMetres) {
  */
 function determinePlacings(results) {
 
-    results.forEach(result => {
-      const totalAthleteTime = result.athletes.reduce((acc, athlete) => acc + athlete.timeSeconds, 0);
-      result.totalTimeSeconds = totalAthleteTime + result.handicapSeconds;
+  // Calculate total time for each team
+  results.forEach(result => {
+    const totalAthleteTime = result.athletes.reduce((acc, athlete) => acc + athlete.timeSeconds, 0);
+    result.totalTimeSeconds = totalAthleteTime + result.handicapSeconds;
   });
 
-    // Sort the results by timeSeconds in ascending order
-    results.sort((a, b) => a.totalTimeSeconds - b.totalTimeSeconds);
+  // Sort the results by timeSeconds in ascending order
+  results.sort((a, b) => a.totalTimeSeconds - b.totalTimeSeconds);
 
-    // Initialize placing and a counter for ties
-    let placing = 1;
-    let tieCount = 0;
+  // Initialize placing and a counter for ties
+  let placing = 1;
+  let tieCount = 0;
 
-    for (let i = 0; i < results.length; i++) {
-        if (i > 0 && results[i].totalTimeSeconds === results[i - 1].totalTimeSeconds) {
-            // If tied with the previous time, assign the same placing
-            results[i].placing = placing;
-            tieCount++; // Increase the tie count
-        } else {
-            // If not tied, update placing, taking into account previous ties
-            placing += tieCount;
-            results[i].placing = placing;
-            tieCount = 1; // Reset tie count for next sequence
-        }
-    }
+  for (let i = 0; i < results.length; i++) {
+      if (i > 0 && results[i].totalTimeSeconds === results[i - 1].totalTimeSeconds) {
+          // If tied with the previous time, assign the same placing
+          results[i].placing = placing;
+          tieCount++; // Increase the tie count
+      } else {
+          // If not tied, update placing, taking into account previous ties
+          placing += tieCount;
+          results[i].placing = placing;
+          tieCount = 1; // Reset tie count for next sequence
+      }
+  }
 
-    // Sort the results by lane again
-    results.sort((a, b) => a.lane - b.lane);
-    return results;
+  // Sort the results by lane again
+  results.sort((a, b) => a.lane - b.lane);
+  return results;
 }
 
 /**
@@ -277,7 +266,7 @@ function determinePlacings(results) {
  * @param {number} totalLaps - Total number of laps in the event
  * @returns
  */
-function addMedalIfWon(totalTimeLabel, placing, totalLaps) {
+function addMedalIfWon(totalTimeLabel, placing) {
   // Define the medal abbrevations for each placing. Note that this defines which medals are available.
   const placingAbbrevs = {
     1: 'G',
@@ -287,7 +276,7 @@ function addMedalIfWon(totalTimeLabel, placing, totalLaps) {
 
   // Determine whether the athlete wins a medal
   const isMedalWinner = placingAbbrevs.hasOwnProperty(placing);
-  const finishOnRight = eventFinishesOnRight(totalLaps);
+  const finishOnRight = false;
 
   if (isMedalWinner) {
     // Create the medal
@@ -307,7 +296,7 @@ function addMedalIfWon(totalTimeLabel, placing, totalLaps) {
       medal.style.left = 'auto'; // Reset left
     } else {
       // Desktop, finish on left
-      medal.style.left = (-100)  + 'px'; // TODO: make data-driven
+      medal.style.left = style.getPropertyValue('--medal-offset-left');
       medal.style.right = 'auto'; // Reset right
     }
 
@@ -323,8 +312,9 @@ function addMedalIfWon(totalTimeLabel, placing, totalLaps) {
 function calculateLapDistance(dot) {
   // Get document sizes
   const arenaWidth =  getComputedStyle(document.getElementById('arena')).width;
-  const dotSize =  getComputedStyle(dot).width;
-  const dotLeft = getComputedStyle(dot).left;
+  const dotStyle = getComputedStyle(dot);
+  const dotSize =  dotStyle.width;
+  const dotLeft = dotStyle.left;
 
   // Calculate lap distance
   const lapDistance = parseInt(arenaWidth) - parseInt(dotLeft) - parseInt(dotSize) - parseInt(paddingHorizontal);
@@ -353,20 +343,28 @@ function formatTime(timeInSeconds) {
   }
 }
 
-function animateDot(result, playbackSpeedFactor) {
-  const lapsPerAthlete = 2;
+/**
+ * Animates a dot along its lane for the whole event
+ * @param {object} result - Dictionary with details of the lane's result
+ * @returns
+ */
+function animateDot(result) {
+
+  // Get page elements
   const laneNumber = result.lane;
   const dot = document.getElementById(`dot-${laneNumber}`);
   const laneLabel = document.getElementById(`lane-label-${result.lane}`);
   const totalTimeLabel = document.getElementById(`total-time-label-${result.lane}`);
+
   // Calculate lap distance
   const lapDistance = calculateLapDistance(dot);
-  dotLeft = parseFloat(getComputedStyle(dot).left);
+  const dotLeft = parseFloat(getComputedStyle(dot).left);
   let laps = [];
 
+  // Push lap data into list
   result.athletes.forEach(athlete => {
-    laps.push({ leg: athlete.leg, direction: 1, duration: athlete.timeSeconds / 2, athleteName: athlete.athleteName }); // forward
-    laps.push({ leg: athlete.leg, direction: -1, duration: athlete.timeSeconds / 2, athleteName: athlete.athleteName  }); // back
+    laps.push({ leg: athlete.leg, athleteName: athlete.athleteName, direction: 1, duration: athlete.timeSeconds / 2 }); // forward
+    laps.push({ leg: athlete.leg, athleteName: athlete.athleteName, direction: -1, duration: athlete.timeSeconds / 2 }); // back
   });
 
   let startTime = null;
@@ -375,111 +373,61 @@ function animateDot(result, playbackSpeedFactor) {
   function animate(timestamp) {
     if (!startTime) startTime = timestamp;
 
+    // Calculate progress %
     const lap = laps[currentLap];
     const lapDurationMs = lap.duration * 1000 / playbackSpeedFactor;
     const elapsed = timestamp - startTime;
     const progress = Math.min(elapsed / lapDurationMs, 1); // 0 to 1
 
+    // Calculate position
     const position = lap.direction === 1
-      ? progress * (lapDistance - 20) + dotLeft
-      : (1 - progress) * (lapDistance - 20) + dotLeft;
+      ? progress * (lapDistance - paddingHorizontal) + dotLeft
+      : (1 - progress) * (lapDistance - paddingHorizontal) + dotLeft;
 
+    // Set position
     dot.style.left =  `${position}px`;
 
+    // Update lane label
     laneLabel.innerHTML = result.team + '<br>' + '(' + lap.leg + ') ' + lap.athleteName;
 
     if (progress < 1) {
+      // Dot continues
       requestAnimationFrame(animate);
     } else {
+      // End of lap
       currentLap++;
       if (currentLap < laps.length) {
+        // End of leg
         startTime = null;
         requestAnimationFrame(animate);
       } else {
+        // End of relay
         laneLabel.innerHTML = result.team;
         totalTimeLabel.textContent = formatTime(result.totalTimeSeconds);
-        addMedalIfWon(totalTimeLabel, result.placing, lapsPerAthlete);
+        addMedalIfWon(totalTimeLabel, result.placing);
       }
     }
   }
 
+  // Apply team handicap
+  const handicapDelayMs = result.handicapSeconds * 1000 / playbackSpeedFactor;
+
   setTimeout(() => {
     requestAnimationFrame(animate);
-  }, result.handicapSeconds * 1000 / playbackSpeedFactor);
+  }, handicapDelayMs);
 
-}
-/**
- * Animates a dot along its lane for the whole event
- * @param {object} result - Dictionary with details of the lane's result
- * @param {number} totalLaps - Total number of laps in the race
- * @param {number} playbackSpeedFactor - Playback speed factor. 1 is real time; higher values are faster. 
- * @returns
- */
-function animateDot2(result, playbackSpeedFactor) {
-  // Initialise counter
-  let completedLaps = 0;
-
-  // TODO: Make data-driven
-  const lapsPerAthlete = 2
-  const numberOfLegs = result.athletes.length;
-  const totalLaps = lapsPerAthlete * numberOfLegs;
-  console.log(totalLaps);
-
-  // Get objects from document
-  const laneNumber = result.lane;
-  const dot = document.getElementById(`dot-${laneNumber}`);
-  const totalTimeLabel = document.getElementById(`total-time-label-${laneNumber}`);
-
-  result.athletes.forEach(athlete => {
-    console.log(completedLaps); 
-    // Calculate real time and clock time
-    const totalTime = athlete.timeSeconds;
-    const totalClockTime = totalTime / playbackSpeedFactor;
-    const lapClockTime = totalClockTime / lapsPerAthlete;
-
-    // Calculate lap distance
-    const lapDistance = calculateLapDistance(dot);
-
-    function completeNextLap() {
-      // Last lap: set time label and exit function
-      if (completedLaps >= totalLaps) {
-        // Set time label
-        totalTimeLabel.textContent = formatTime(totalTime);
-
-        // Add a medal (if applicable)
-        // addMedalIfWon(totalTimeLabel, result.placing, lapsPerAthlete);
-        return;
-      }
-
-      // Determine the position based on lap
-      const newPosition = completedLaps % 2 === 0 ? lapDistance : 0;
-      dot.style.transitionDuration = `${lapClockTime}s`;
-      dot.style.transform = `translateX(${newPosition}px)`;
-
-      // Move the dot and increment laps count
-      setTimeout(() => {
-        completedLaps++;
-        completeNextLap(); // Continue to the next lap
-      }, lapClockTime * 1000);
-    }
-
-    completeNextLap();
-  });
 }
 
 /**
  * Animates all dots along their lanes for the whole event
  * @param {object} event - Dictionary containing event details 
- * @param {number} playbackSpeedFactor - Playback speed factor. 1 is real time; higher values are faster.
  * @returns
  */
-function animateAllDots(results, playbackSpeedFactor) {
-  // Total number of laps
-  // const totalLaps = event.laps;
+function animateAllDots(event) {
 
   // Animate each dot
-  results.forEach(result => {
-    animateDot(result, playbackSpeedFactor);
+  event.results.forEach(result => {
+    animateDot(result);
   });
 }
 
@@ -488,13 +436,8 @@ function animateAllDots(results, playbackSpeedFactor) {
  * @param {object} event - Dictionary containing event details
  * @returns
  */
-function simulateEvent(results, lapDistanceMetres) {
-  // Set the playback speed factor
-  const playbackSpeedFactor = 2000;
-
-  // Simulate the event
-  determinePlacings(results);
-  populateArena(results);
-  setLapMarker(lapDistanceMetres);
-  animateAllDots(results, playbackSpeedFactor);
+function simulateEvent(event) {
+  populateArena(event);
+  determinePlacings(event.results);
+  animateAllDots(event);
 }
