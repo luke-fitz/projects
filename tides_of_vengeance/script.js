@@ -324,9 +324,9 @@ function formatTime(timeInSeconds) {
 
   // Construct the formatted time based on the values of hours and minutes
   if (hours > 0) {
-    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(hundredths).padStart(2, '0')}`;
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;//.${String(hundredths).padStart(2, '0')}`;
   } else if (minutes > 0) {
-    return `${minutes}:${String(seconds).padStart(2, '0')}.${String(hundredths).padStart(2, '0')}`;
+    return `${minutes}:${String(seconds).padStart(2, '0')}`;//.${String(hundredths).padStart(2, '0')}`;
   } else {
     return `${seconds}.${String(hundredths).padStart(2, '0')}`;
   }
@@ -375,6 +375,7 @@ function animateDot(result, playbackSpeedFactor) {
         startTime = null;
         requestAnimationFrame(animate);
       } else {
+        laneLabel.innerHTML = result.team + '<br>&nbsp;';
         totalTimeLabel.textContent = formatTime(result.totalTimeSeconds);
         addMedalIfWon(totalTimeLabel, result.placing, lapsPerAthlete);
       }
@@ -468,7 +469,7 @@ function animateAllDots(results, playbackSpeedFactor) {
  */
 function simulateEvent(results, lapDistanceMetres) {
   // Set the playback speed factor
-  const playbackSpeedFactor = 10;
+  const playbackSpeedFactor = 2000;
 
   // Simulate the event
   determinePlacings(results);

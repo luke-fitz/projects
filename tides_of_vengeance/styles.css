@@ -3,11 +3,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Bruno Ace&display=swap');
 
 :root {
-  --arena-athletics-color: #A74C3A;
-  --arena-swimming-color: #2BAED0;
+  --arena-athletics-color: #E1C16E;
+  --arena-swimming-color: #006994;
   --arena-default-color: grey;
   --arena-default-height: 400px;
-  --arena-text-color: white;
+  --arena-text-color: black;
   --arena-font-size: 1em;
   --arena-width: 80vw;
   --arena-start-left: 300px;
@@ -164,9 +164,8 @@ body {
   background: linear-gradient(
     to right, 
     var(--page-background-color) 0 var(--arena-start-left), 
-    var(--arena-athletics-color) var(--arena-start-left) 40%, 
-    var(--arena-swimming-color) 40% 80%, 
-    var(--arena-athletics-color) 80% 100%
+    var(--arena-athletics-color) var(--arena-start-left) 70%,
+    var(--arena-swimming-color) 70% 100%
     );
 }
 
@@ -214,7 +213,26 @@ body {
   height: var(--dot-size);
   transition: transform 1s linear;
   border-radius: 50%; /* circle */
-  background-color: var(--dot-color);
+  /* background-color: var(--dot-color); */
+  /* background: linear-gradient(to right, 
+  navy 20%, 
+  white 20% 40%, 
+  red 40% 60%, 
+  white 60% 80%, 
+  navy 80%); */
+  /* background: conic-gradient(
+    red 0% 12.5%,
+    yellow 12.5% 37.5%,
+    red 37.5% 62.5%,
+    yellow 62.5% 87.5%,
+    red 87.5% 100%
+  ); */
+  background: conic-gradient(
+    yellow 0% 25%,
+    red 25% 50%,
+    yellow 50% 75%,
+    red 75% 100%
+  );
   box-shadow: 0px 2px 6px 3px rgba(0, 0, 0, 0.3);
 }
 
