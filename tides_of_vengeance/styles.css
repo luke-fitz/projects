@@ -10,6 +10,7 @@
   --arena-text-color: white;
   --arena-font-size: 1em;
   --arena-width: 80vw;
+  --arena-start-left: 300px;
   --body-margin-top: 120px;
   --dot-color: #f2f2f2;
   --dot-size: 20px;
@@ -18,6 +19,7 @@
   --lane-min-height-desktop: 30px;
   --lane-label-width: 150px;
   --lane-label-font: "Roboto Mono";
+  --lanel-label-text-color: black;
   --lap-marker-font: "Roboto";
   --medal-font-size: 1em;
   --medal-size: 20px;
@@ -32,7 +34,7 @@
   --nav-panel-width: 20vw;
   --padding-horizontal: 20px;
   --page-background-color: white;
-  --time-label-longest: 100px;
+  --time-label-longest: 0px;
   --time-label-font: "Roboto Mono";
   --title-bar-color: #607d8b;
   --title-font-size: 2em;
@@ -157,7 +159,15 @@ body {
   width: 100%;
   height: var(--arena-default-height);
   border: none;
-  background-color: var(--arena-default-color);
+  /* background-color: var(--arena-default-color); */
+  
+  background: linear-gradient(
+    to right, 
+    var(--page-background-color) 0 var(--arena-start-left), 
+    var(--arena-athletics-color) var(--arena-start-left) 40%, 
+    var(--arena-swimming-color) 40% 80%, 
+    var(--arena-athletics-color) 80% 100%
+    );
 }
 
 #arena[arena-sport = "Swimming"] {
@@ -187,7 +197,7 @@ body {
 
 .lane-label {
   padding-left: var(--padding-horizontal);
-  color: var(--arena-text-color);
+  color: var(--lane-label-text-color);
   font-family: var(--lane-label-font);
   font-size: var(--arena-font-size);
 }
@@ -239,6 +249,8 @@ body {
   line-height: 20px;
   border: 0.5px solid white;
   box-shadow: 0px 2px 6px 3px rgba(0, 0, 0, 0.3);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .medal[medal-placing = "1"] {
