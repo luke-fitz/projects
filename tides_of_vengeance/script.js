@@ -1,5 +1,5 @@
 // Playback speed factor
-let playbackSpeedFactor = 200;
+const playbackSpeedFactor = 200;
 
 // Precomputed styles
 const mediaQuery = window.matchMedia("screen and (max-width: 768px)");
