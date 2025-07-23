@@ -1,0 +1,11 @@
+Potential improvements for current pipeline:
+- Current pipeline assumes JSONs contain only a single element; if multiple, items should be broken into a sub-table structure.
+- Double types are not ideal for currency fields due to precision issues. I suggest using decimal or numeric.
+- Many auto-generated columns in fct_receipt_items reduce clarity. We should refactor once column definitions and keys are confirmed.
+
+Desired enhancements in a future pipeline:
+- Implement comprehensive data quality checks (e.g. nulls, types, referential integrity).
+- Introduce surrogate keys to improve joins and maintain dimension tables.
+- Apply Kimball dimensional modeling for clearer reporting layers.
+- Develop a bronze, silver, gold data architecture for ingestion, cleansing, and business-ready datasets.
+- Establish data governance including a data dictionary and lineage tracking.
