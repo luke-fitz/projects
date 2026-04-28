@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bruno Ace&display=swap');
 
 :root {
   --arena-beach-color: #E1C16E;
@@ -14,7 +15,7 @@
   --body-margin-top: 120px;
   --dot-color: #f2f2f2;
   --dot-size: 20px;
-  --event-title-font: "Roboto";
+  --event-title-font: "Bruno Ace";
   --event-title-font-size: 1.5em;
   --lane-min-height-desktop: 30px;
   --lane-label-width: 150px;
@@ -32,7 +33,7 @@
   --page-background-color: white;
   --time-label-longest: 0px;
   --time-label-font: "Roboto Mono";
-  --title-bar-color: #384acf;
+  --title-bar-color: #607d8b;
   --title-font-size: 2em;
   --title-padding: 15px;
 }
@@ -153,11 +154,11 @@ body {
 .dot[dot-team = "North Bondi"] {
   background: linear-gradient(
     to right, 
-  brown 20%, 
-  white 20% 42.5%, 
-  red 42.5% 57.5%, 
-  white 57.5% 80%, 
-  brown 80%
+  navy 20%, 
+  white 20% 40%, 
+  red 40% 60%, 
+  white 60% 80%, 
+  navy 80%
   );
 }
 
@@ -167,6 +168,25 @@ body {
     red 25% 50%,
     yellow 50% 75%,
     red 75% 100%
+  );
+}
+
+.dot[dot-team = "Tamarama"] {
+  background: linear-gradient(
+    to right, 
+  white 0% 29%, 
+  navy 29% 43%,
+  white 43% 57%, 
+  navy  57% 71%,
+  white 71% 100%
+  );
+}
+
+.dot[dot-team = "Bronte"] {
+  background: linear-gradient(
+    to right, 
+  navy 0% 50%,
+  yellow 50% 100%
   );
 }
 
@@ -253,7 +273,7 @@ body {
   padding: var(--title-padding);
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   letter-spacing: 1px;
-  /* text-transform: uppercase; */
+  text-transform: uppercase;
   position: fixed; /* Fixed position at the top */
   top: 0;
   left: 0;
@@ -263,4 +283,8 @@ body {
 #title-bar h1 {
   margin: 0;
   padding: 0;
+}
+
+.highlight {
+  background-color: #f0f0f0;
 }

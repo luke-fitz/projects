@@ -1,5 +1,5 @@
 // Playback speed factor
-const playbackSpeedFactor = 200;
+let playbackSpeedFactor = 200;
 
 // Precomputed styles
 const mediaQuery = window.matchMedia("screen and (max-width: 768px)");
@@ -23,13 +23,13 @@ window.addEventListener('DOMContentLoaded', setArenaBackground);
 window.addEventListener('DOMContentLoaded', () => {
   setArenaBackground();
 
-  const slider = document.getElementById('playback-speed-slider');
-  const speedValue = document.getElementById('playback-speed-value');
+  // const slider = document.getElementById('playback-speed-slider');
+  // const speedValue = document.getElementById('playback-speed-value');
 
-  slider.addEventListener('input', () => {
-    playbackSpeedFactor = parseInt(slider.value);
-    speedValue.textContent = slider.value;
-  });
+  // slider.addEventListener('input', () => {
+  //   playbackSpeedFactor = parseInt(slider.value);
+  //   speedValue.textContent = slider.value;
+  // });
 });
 
 // Fetch the event data
@@ -40,7 +40,7 @@ fetch('./data/event.json')
   })
   .catch(error => {
     console.error('Error fetching data:', error);
-    document.getElementById('arena').textContent = 'Failed to load event data.';
+    document.getElementById('arena').textContent = error //'Failed to load event data.';
  });
 
 /**
@@ -103,7 +103,7 @@ function setLaneLabelElement(result) {
   const laneLabel = document.createElement('div');
   laneLabel.className = 'lane-label';
   laneLabel.id = `lane-label-${result.lane}`;
-  laneLabel.innerHTML = result.team + '<br>&nbsp;';
+  laneLabel.innerHTML = '<strong class="highlight">' + result.team + '</strong><br>&nbsp;';
   return laneLabel;
 }
 
@@ -401,7 +401,7 @@ function animateDot(result, lapsPerAthlete) {
     dot.style.left =  `${position}px`;
 
     // Update lane label
-    laneLabel.innerHTML = result.team + '<br>' + '(' + lap.leg + ') ' + lap.athleteName;
+    laneLabel.innerHTML = '<strong class="highlight">' + result.team + '</strong><br>' + '(' + lap.leg + ') ' + lap.athleteName;
 
     if (progress < 1) {
       // Dot continues
